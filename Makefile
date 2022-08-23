@@ -8,10 +8,11 @@ BIN = build
 PREFIX = /usr
 instDir = $(PREFIX)/include/nlog
 
+CCFLAGS = -ggdb
+
 all: build
 
-# run tests
-run:
+test:
 	$(MAKE) -C tests
 
 build: $(OBJ)

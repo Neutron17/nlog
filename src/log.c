@@ -5,14 +5,12 @@
 #include <string.h>
 #include <stdarg.h>
 #include <pthread.h>
-#include <fcntl.h>
 
 #include "log.h"
-//#include "assrt.h"
 #include "stdext.h"
 
-static const char *logprefix[3] = {
-	"INFO: ", "WARINING: ", "ERROR: "
+static const char *logprefix[4] = {
+	"ALL: ", "INFO: ", "WARINING: ", "ERROR: "
 };
 
 pthread_mutex_t logmutex;
@@ -26,21 +24,25 @@ static void appendRTimeInfo(char *dest, const char *file,
 		int line);
 
 static enum LogLevel stdoutMask, fileMask;
-static int logfile;
+static FILE *logfile;
 
 void loginit(enum LogLevel _stdoutMask, enum LogLevel _fileMask) {
 	stdoutMask = _stdoutMask;
 	fileMask = _fileMask;
-	logfile = open(LOGFILE_NAME, O_WRONLY|O_APPEND|O_CREAT);
-	if(logfile == -1) {
+	logfile = fopen(LOGFILE_NAME, "a");
+	if(!logfile) {
 		fprintf(stderr, "ERROR: Couldn't open logfile, %s, %s\n", LOGFILE_NAME, strerror(errno));
 	}
 	pthread_mutex_init(&logmutex, 0);
 }
 
 void logdestroy() {
-	if(logfile == -1)
-		close(logfile);
+	pthread_mutex_lock(&logmutex);
+	if(logfile) {
+		fclose(logfile);
+		logfile = NULL;
+	}
+	pthread_mutex_unlock(&logmutex);
 	pthread_mutex_destroy(&logmutex);
 }
 
@@ -49,6 +51,8 @@ void __logf(enum LogLevel level, const char *file,
 		const char *func,
 #endif
 		int line, const char *format, ...) {
+	if(level == L_NONE)
+		return;
 	va_list ap;
 	va_start(ap, format);
 
@@ -65,7 +69,6 @@ void __logf(enum LogLevel level, const char *file,
 			func,
 #endif
 			line);
-
 	if(stdoutMask != L_NONE && level >= stdoutMask)
 		printf("%s\n", message);
 	if(fileMask != L_NONE && level >= fileMask)
@@ -77,10 +80,11 @@ void __log(enum LogLevel level, const char *file,
 		const char *func,
 #endif
 		int line, const char *msg) {
+	if(level == L_NONE)
+		return;
 	char message[512];
 	strncpy(message, logprefix[level], 9);
 	strncat(message, msg, 256);
-	printf("%s\n", message);
 
 	appendRTimeInfo(message, file,
 #ifndef NO_FUNC
@@ -124,11 +128,11 @@ static void appendRTimeInfo(char *dest, const char *file,
 }
 
 static void logtofile(const char *msg) {
-	if(logfile == -1)
-		return;
 	pthread_mutex_lock(&logmutex);
+	if(!logfile)
+		return;
 	// Error already printed in loginit
-	async_write_str(logfile, (char *)msg, 512);
+	async_write_str(fileno(logfile), (char *)msg, 512);
 	pthread_mutex_unlock(&logmutex);
 }
 

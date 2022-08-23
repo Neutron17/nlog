@@ -4,9 +4,9 @@
 
 
 #ifndef HAVE_STRNLEN
-#	include <stddef.h>
+# include <stddef.h>
 // Safe strlen because it's not standard
-	extern size_t strnlen(const char *str, size_t n);
+	extern size_t strnlen(const char *string, size_t maxlen);
 #endif
 
 // reverse string
