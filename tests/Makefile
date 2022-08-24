@@ -9,5 +9,5 @@ run: build
 	./test1
 
 clean:
-	rm test1
+	rm logs.txt test1
 

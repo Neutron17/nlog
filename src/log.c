@@ -132,7 +132,8 @@ static void logtofile(const char *msg) {
 	if(!logfile)
 		return;
 	// Error already printed in loginit
-	async_write_str(fileno(logfile), (char *)msg, 512);
+	fprintf(logfile, "%s", msg);
+	//async_write_str(fileno(logfile), (char *)msg, 512);
 	pthread_mutex_unlock(&logmutex);
 }
 
