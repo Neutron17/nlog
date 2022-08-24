@@ -24,10 +24,7 @@ int main() {
 	return 0;
 }
 ```
-compile with
-```
--lnlog
-```
+compile with ```-lnlog```
 
 ## Installation
 
@@ -45,11 +42,7 @@ license (GNU GPL 3.0)
 this was an asynchronous logger, but the hassle wasn't worth it,
 
  - async io is usually not real async, linux can(and often does) turn your carefully assembled asynchronous code
- into synchronous code, even with the
- ```
- O_DIRECT
- ```
-  hint,
+ into synchronous code, even with the ```O_DIRECT``` hint,
 
  for more details see [this](https://stackoverflow.com/a/46377629/14187193) and [this](https://stackoverflow.com/a/38969392/14187193)
 
