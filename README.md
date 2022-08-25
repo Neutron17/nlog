@@ -37,7 +37,7 @@ sudo make install
 anyone can create pull requests, fork the project, etc as long as it doesn't violate the
 license (GNU GPL 3.0)
 
-### Old version 1
+### Old version 1 - [NALog](https://github.com/Neutron17/alog)
 
 this was an asynchronous logger, but the hassle wasn't worth it,
 
@@ -49,9 +49,10 @@ this was an asynchronous logger, but the hassle wasn't worth it,
  with the current state of async io on unix I don't think this project is worth struggling with.
 
  the latest (unstable)version of this is available at [alog](https://github.com/Neutron17/alog) as a public archive
+
  or [on this pastebin(log.c)](https://pastebin.com/E3y2hWzT) with version 1.0
 
-### Old version 2
+### Old version 2 - [CLogger](https://github.com/Neutron17/clogger)
 
 the oldest version is [clogger](https://github.com/Neutron17/clogger)
 it was archived because I stoped it's development and moved onto this
