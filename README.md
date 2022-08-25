@@ -48,7 +48,8 @@ this was an asynchronous logger, but the hassle wasn't worth it,
 
  with the current state of async io on unix I don't think this project is worth struggling with.
 
- the latest (unstable)version of this is available  [on this pastebin(log.c)](https://pastebin.com/E3y2hWzT) with version 1.0
+ the latest (unstable)version of this is available at [alog](https://github.com/Neutron17/alog) as a public archive
+ or [on this pastebin(log.c)](https://pastebin.com/E3y2hWzT) with version 1.0
 
 ### Old version 2
 
