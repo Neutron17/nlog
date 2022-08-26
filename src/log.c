@@ -57,7 +57,7 @@ void __logf(enum LogLevel level, const char *file,
 	va_start(ap, format);
 
 	char message[512];
-	strncpy(message, logprefix[level], 9);
+	strncpy(message, logprefix[level], 11);
 	{
 		char tmp[256];
 		vsnprintf(tmp, 256, format, ap);
@@ -83,7 +83,7 @@ void __log(enum LogLevel level, const char *file,
 	if(level == L_NONE)
 		return;
 	char message[512];
-	strncpy(message, logprefix[level], 9);
+	strncpy(message, logprefix[level], 11);
 	strncat(message, msg, 256);
 
 	appendRTimeInfo(message, file,
