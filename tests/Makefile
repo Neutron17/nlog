@@ -3,11 +3,16 @@ CC = cc
 all: run
 
 build:
-	$(CC) test1.c -o test1 -lnlog -O0
+	$(CC) demo.c -o demo -lnlog -O0
+	$(CC) lognone.c -o lognone -lnlog -O0
+	$(CC) speed1.c -o speed1 -lnlog -O0
 
 run: build
-	./test1
+	./demo
+	./lognone
+	./speed1
 
 clean:
-	rm logs.txt test1
+	rm logs.txt
+	rm demo lognone speed1
 
