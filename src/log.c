@@ -1,8 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include <unistd.h>
 #include <errno.h>
 #include <string.h>
+#include <stdbool.h>
 #include <stdarg.h>
 #include <pthread.h>
 
@@ -15,20 +17,25 @@ static const char *logprefix[4] = {
 
 pthread_mutex_t logmutex;
 
-static void logtofile(const char *msg);
+static void logtofile(const char *restrict msg);
+// Warning: overwrites 'msg'
+static inline void appendTime(char *restrict msg);
 // appends runtime info to dest
-static void appendRTimeInfo(char *dest, const char *file,
+static void appendRTimeInfo(char *dest, const char *restrict file,
 #ifndef NO_FUNC
-		const char *func,
+		const char *restrict func,
 #endif
 		int line);
 
 static enum LogLevel stdoutMask, fileMask;
+static bool doNothing = false;
 static FILE *logfile;
 
 void loginit(enum LogLevel _stdoutMask, enum LogLevel _fileMask) {
 	stdoutMask = _stdoutMask;
 	fileMask = _fileMask;
+	if(_stdoutMask == L_NONE && _fileMask == L_NONE)
+		doNothing = true;
 	logfile = fopen(LOGFILE_NAME, "a");
 	if(!logfile) {
 		fprintf(stderr, "ERROR: Couldn't open logfile, %s, %s\n", LOGFILE_NAME, strerror(errno));
@@ -51,13 +58,14 @@ void __logf(enum LogLevel level, const char *file,
 		const char *func,
 #endif
 		int line, const char *format, ...) {
-	if(level == L_NONE)
+	if(doNothing || level == L_NONE)
 		return;
 	va_list ap;
 	va_start(ap, format);
 
 	char message[512];
-	strncpy(message, logprefix[level], 11);
+	appendTime(message);
+	strncpy(message, logprefix[level], 9);
 	{
 		char tmp[256];
 		vsnprintf(tmp, 256, format, ap);
@@ -80,10 +88,11 @@ void __log(enum LogLevel level, const char *file,
 		const char *func,
 #endif
 		int line, const char *msg) {
-	if(level == L_NONE)
+	if(doNothing || level == L_NONE)
 		return;
 	char message[512];
-	strncpy(message, logprefix[level], 11);
+	appendTime(message);
+	strncat(message, logprefix[level], 9);
 	strncat(message, msg, 256);
 
 	appendRTimeInfo(message, file,
@@ -135,5 +144,17 @@ static void logtofile(const char *msg) {
 	fprintf(logfile, "%s", msg);
 	//async_write_str(fileno(logfile), (char *)msg, 512);
 	pthread_mutex_unlock(&logmutex);
+}
+
+static inline void appendTime(char *restrict msg) {
+	const time_t current_time = time(NULL);
+	const struct tm *tinfo = localtime(&current_time);
+	char tstr[24];
+
+	if(strftime(tstr, sizeof(tstr), "%Y.%m.%d %H:%M:%S%n", tinfo) == 0) {
+		fprintf(stderr, "UNLOGGED ERROR: strftime returned 0\n");
+		strcpy(tstr, "");
+	}
+	strcpy(msg, tstr);
 }
 
